@@ -46,6 +46,7 @@ class App extends Component {
                     layout={layout}
                     useResizeHandler
                     style={{ width: '100%', height: '100%' }}
+                    config={{'displaylogo': false}}
                 />
             </Container>
             <Footer />

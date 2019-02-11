@@ -1,5 +1,7 @@
-import {Menu, Button, Container, Responsive, Segment, Visibility, Image} from "semantic-ui-react";
+import {Menu, Button, Container, Responsive, Segment, Visibility, Image, Form, Header, Modal, Icon, Label} from "semantic-ui-react";
 import React, {Component} from "react";
+import Login from '../components/Login'
+import Signup from '../components/Signup'
 
 const getWidth = () => {
     const isSSR = typeof window === 'undefined'
@@ -7,8 +9,44 @@ const getWidth = () => {
     return isSSR ? Responsive.onlyTablet.minWidth : window.innerWidth
 }
 
+
 export default class DesktopContainer extends Component {
-    state = {}
+
+  state ={
+    user: {}
+  }
+
+  createUser = (e, userObj) => {
+    let username = userObj.username;
+    let password = userObj.password;
+    fetch("http://localhost:3000/api/v1/users", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        Accepts: "application/json"
+      },
+      body: JSON.stringify({ user: { username: username, password: password } })
+    })
+      .then(resp => resp.json())
+      .then(data => console.log("create user", data))
+  };
+
+
+  loginUser = userObj => {
+    let username = userObj.username;
+    let password = userObj.password;
+    fetch("http://localhost:3000/api/v1/login", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        Accepts: "application/json"
+      },
+      body: JSON.stringify({ user: { username: username, password: password } })
+    })
+      .then(resp => resp.json())
+      .then(data => console.log("login response data", data))
+    }
+
 
     hideFixedMenu = () => this.setState({ fixed: false })
     showFixedMenu = () => this.setState({ fixed: true })
@@ -44,14 +82,13 @@ export default class DesktopContainer extends Component {
                                 <Menu.Item as='h2' active>
                                     Emotional State
                                 </Menu.Item>
+  {/*----------------------------LOGIN and SIGNUP HERE----------------------------------- */}
                                 <Menu.Item position='right'>
-                                    <Button as='a' inverted={!fixed}>
-                                        Log in
-                                    </Button>
-                                    <Button as='a' inverted={!fixed} primary={fixed} style={{ marginLeft: '0.5em' }}>
-                                        Sign Up
-                                    </Button>
+                                <Login submitHandler={this.loginUser}/>
+                                </Menu.Item><Menu.Item>
+                                <Signup submitHandler={this.createUser} />
                                 </Menu.Item>
+
                             </Container>
                         </Menu>
                     </Segment>
