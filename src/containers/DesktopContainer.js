@@ -12,41 +12,9 @@ const getWidth = () => {
 
 export default class DesktopContainer extends Component {
 
-  state ={
-    user: {}
-  }
+    state = {
 
-  createUser = (e, userObj) => {
-    let username = userObj.username;
-    let password = userObj.password;
-    fetch("http://localhost:3000/api/v1/users", {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-        Accepts: "application/json"
-      },
-      body: JSON.stringify({ user: { username: username, password: password } })
-    })
-      .then(resp => resp.json())
-      .then(data => console.log("create user", data))
-  };
-
-
-  loginUser = userObj => {
-    let username = userObj.username;
-    let password = userObj.password;
-    fetch("http://localhost:3000/api/v1/login", {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-        Accepts: "application/json"
-      },
-      body: JSON.stringify({ user: { username: username, password: password } })
-    })
-      .then(resp => resp.json())
-      .then(data => console.log("login response data", data))
     }
-
 
     hideFixedMenu = () => this.setState({ fixed: false })
     showFixedMenu = () => this.setState({ fixed: true })
@@ -84,9 +52,10 @@ export default class DesktopContainer extends Component {
                                 </Menu.Item>
   {/*----------------------------LOGIN and SIGNUP HERE----------------------------------- */}
                                 <Menu.Item position='right'>
-                                <Login submitHandler={this.loginUser}/>
-                                </Menu.Item><Menu.Item>
-                                <Signup submitHandler={this.createUser} />
+                                    <Login submitHandler={this.props.loginUser}/>
+                                </Menu.Item>
+                                <Menu.Item>
+                                    <Signup submitHandler={this.props.createUser} />
                                 </Menu.Item>
 
                             </Container>

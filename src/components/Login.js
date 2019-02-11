@@ -5,7 +5,7 @@ import React, {Component} from "react";
 class Login extends Component {
 
   state = {
-    username: "",
+    email: "",
     password: ""
   }
 
@@ -17,10 +17,9 @@ class Login extends Component {
 
   submitHandler = e => {
     e.preventDefault();
-    this.props.submitHandler(e, this.state);
-    console.log(this.state);
+    this.props.submitHandler(this.state);
     this.setState({
-      username: "",
+      email: "",
       password: ""
     })
   }
@@ -33,12 +32,12 @@ class Login extends Component {
         <Modal.Header>User Log in</Modal.Header>
           <Modal.Content>
             <Form onSubmit={this.submitHandler}>
-              <Label pointing="below">Username:</Label>
+              <Label pointing="below">Email:</Label>
             <Form.Input
               type="text"
-              name="username"
-              placeholder="username"
-              value={this.state.username}
+              name="email"
+              placeholder="email"
+              value={this.state.email}
               onChange={this.changeHandler}
               /> 
 

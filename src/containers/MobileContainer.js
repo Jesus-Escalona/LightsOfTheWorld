@@ -1,6 +1,8 @@
 import {Sidebar, Menu, Button, Container, Icon, Responsive, Segment} from "semantic-ui-react";
 import React, {Component} from "react";
 import HomepageHeading from "../components/HomepageHeading";
+import Login from "../components/Login";
+import Signup from "../components/Signup";
 
 const getWidth = () => {
     const isSSR = typeof window === 'undefined'
@@ -37,10 +39,6 @@ export default class MobileContainer extends Component {
                         Home
                     </Menu.Item>
                     <Menu.Item as='a'>Work</Menu.Item>
-                    <Menu.Item as='a'>Company</Menu.Item>
-                    <Menu.Item as='a'>Careers</Menu.Item>
-                    <Menu.Item as='a'>Log in</Menu.Item>
-                    <Menu.Item as='a'>Sign Up</Menu.Item>
                 </Sidebar>
 
                 <Sidebar.Pusher dimmed={sidebarOpened}>
@@ -56,12 +54,10 @@ export default class MobileContainer extends Component {
                                     <Icon name='sidebar' />
                                 </Menu.Item>
                                 <Menu.Item position='right'>
-                                    <Button as='a' inverted>
-                                        Log in
-                                    </Button>
-                                    <Button as='a' inverted style={{ marginLeft: '0.5em' }}>
-                                        Sign Up
-                                    </Button>
+                                    <Login submitHandler={this.props.loginUser}/>
+                                </Menu.Item>
+                                <Menu.Item>
+                                    <Signup submitHandler={this.props.createUser} />
                                 </Menu.Item>
                             </Menu>
                         </Container>
