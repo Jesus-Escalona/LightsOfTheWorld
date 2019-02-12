@@ -12,6 +12,21 @@ class NavBar extends React.Component {
 
 
     componentDidMount() {
+      let token = localStorage.getItem("jwt");
+      if (token) {
+        fetch("http://localhost:3000/api/v1/profile", {
+          headers: {
+            "content-type": "application/json",
+            'Accepts': "application/json",
+            'Authorization': `Bearer ${token}`
+     }
+   })
+        .then(resp => resp.json())
+        .then(data =>
+          data.message ? alert(`Must Log In`) : this.setState({ user: data.user })
+        );
+      }
+
         fetch('https://geoip-db.com/json/')
             .then(res => res.json())
             .then(data => this.setState({countryCode: data.country_code}))
