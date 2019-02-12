@@ -27,16 +27,29 @@ const data = [
 ];
 
 const layout = {
-    title: 'USA MAP',
-    autosize: true,
+    //autosize: true,
     geo: {
-        scope: 'usa',
         showlakes: true,
         subunitcolor: '#060104'
     }
 };
 class App extends Component {
-  render() {
+    state = {
+        width: ''
+    }
+
+
+    componentDidMount() {
+        this.setState({width: window.innerWidth})
+        window.addEventListener('resize', this.updateDimensions)
+    }
+
+    updateDimensions = () => {
+        this.setState({width: window.innerWidth})
+    }
+
+
+    render() {
     return (
         <Fragment>
             <NavBar />
@@ -44,9 +57,14 @@ class App extends Component {
                 <Plot
                     data={data}
                     layout={layout}
-                    useResizeHandler
-                    style={{ width: '100%', height: '100%' }}
-                    config={{'displaylogo': false}}
+                    //useResizeHandler
+                    style={{
+                        width: this.state.width > 1000 ? '1000px' : '100%',
+                        height: this.state.width > 1000 ? '600px' : '100%'
+                    }}
+                    config={{
+                        displaylogo: false
+                    }}
                 />
             </Container>
             <Footer />

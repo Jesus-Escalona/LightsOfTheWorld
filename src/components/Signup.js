@@ -1,11 +1,10 @@
-import {Menu, Button, Container, Responsive, Segment, Visibility, Image, Form, Header, Modal, Icon, Label, Divider} from "semantic-ui-react";
+import {Message, Menu, Button, Container, Responsive, Segment, Visibility, Image, Form, Header, Modal, Icon, Label, Divider} from "semantic-ui-react";
 import React, {Component} from "react";
-
 
 class Signup extends Component {
 
   state = {
-    username: "",
+    name: "",
     email: "",
     password: ""
   }
@@ -16,11 +15,11 @@ class Signup extends Component {
     })
   }
 
-  submitHandler = e => {
+  submitHandler = (e) => {
     e.preventDefault();
     this.props.submitHandler(e, this.state);
     this.setState({
-      username: "",
+      name: "",
       email: "",
       password: ""
     })
@@ -29,17 +28,20 @@ class Signup extends Component {
   render() {
       const { fixed } = this.state
     return (
-
-      <Modal size="small" trigger={<Button inverted={!fixed}>Sign Up</Button>} centered={false}>
+      <Modal size="small" trigger={<Button inverted={!fixed}>Sign Up</Button>}>
         <Modal.Header>User Sign Up</Modal.Header>
           <Modal.Content>
+            {this.props.message &&
+            <Message negative>
+              <Message.Header>{this.props.message}</Message.Header>
+            </Message>}
             <Form onSubmit={this.submitHandler}>
               <Label pointing="below">Username:</Label>
             <Form.Input
               type="text"
-              name="username"
-              placeholder="username"
-              value={this.state.username}
+              name="name"
+              placeholder="name"
+              value={this.state.name}
               onChange={this.changeHandler}
               />
           <Label pointing="below">Email:</Label>
@@ -59,13 +61,14 @@ class Signup extends Component {
               value={this.state.password}
               onChange={this.changeHandler}
               />
+
+              <br></br><br></br>
+              <Modal.Actions>
+                <Button color='green' inverted center>
+                  <Icon name='checkmark' /> Sign Up
+                </Button>
+              </Modal.Actions>
             </Form>
-            <br></br><br></br>
-          <Modal.Actions>
-        <Button color='green' onClick={this.handleClose} inverted center>
-          <Icon name='checkmark' /> Log in
-          </Button>
-        </Modal.Actions>
       </Modal.Content>
     </Modal>
     )

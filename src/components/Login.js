@@ -1,6 +1,5 @@
-import {Menu, Button, Container, Responsive, Segment, Visibility, Image, Form, Header, Modal, Icon, Label, Input} from "semantic-ui-react";
+import {Message, Menu, Button, Container, Responsive, Segment, Visibility, Image, Form, Header, Modal, Icon, Label, Input} from "semantic-ui-react";
 import React, {Component} from "react";
-
 
 class Login extends Component {
 
@@ -28,9 +27,13 @@ class Login extends Component {
 
     return (
 
-      <Modal size="small" trigger={<Button inverted>Log in</Button>} centered={false}>
+      <Modal size="small" trigger={<Button inverted>Log in</Button>}>
         <Modal.Header>User Log in</Modal.Header>
           <Modal.Content>
+            {this.props.message &&
+            <Message negative>
+              <Message.Header>{this.props.message}</Message.Header>
+            </Message>}
             <Form onSubmit={this.submitHandler}>
               <Label pointing="below">Email:</Label>
             <Form.Input
@@ -53,7 +56,7 @@ class Login extends Component {
               <br></br><br></br>
 
               <Modal.Actions>
-            <Button color='green' onClick={this.handleClose} inverted>
+            <Button color='green' inverted>
               <Icon name='checkmark' /> Log in
               </Button>
             </Modal.Actions>

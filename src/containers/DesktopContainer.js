@@ -1,5 +1,5 @@
 import {Menu, Button, Container, Responsive, Segment, Visibility, Image, Form, Header, Modal, Icon, Label} from "semantic-ui-react";
-import React, {Component} from "react";
+import React, {Component, Fragment} from "react";
 import Login from '../components/Login'
 import Signup from '../components/Signup'
 
@@ -22,7 +22,6 @@ export default class DesktopContainer extends Component {
     render() {
         const { children } = this.props
         const { fixed } = this.state
-
         return (
             <Responsive getWidth={getWidth} minWidth={Responsive.onlyTablet.minWidth}>
                 <Visibility
@@ -51,12 +50,20 @@ export default class DesktopContainer extends Component {
                                     Emotional State
                                 </Menu.Item>
   {/*----------------------------LOGIN and SIGNUP HERE----------------------------------- */}
-                                <Menu.Item position='right'>
-                                    <Login submitHandler={this.props.loginUser}/>
+                                {
+                                    Object.keys(this.props.user).length === 0 ?
+                                        <Fragment>
+                                            <Menu.Item position='right'>
+                                                <Login message={this.props.message} submitHandler={this.props.loginUser}/>
+                                            </Menu.Item>
+                                            <Menu.Item>
+                                                <Signup message={this.props.message} submitHandler={this.props.createUser} />
+                                            </Menu.Item>
+                                        </Fragment>
+                            :   <Menu.Item position='right'>
+                                            <Button onClick={this.props.logoutUser}>Logout</Button>
                                 </Menu.Item>
-                                <Menu.Item>
-                                    <Signup submitHandler={this.props.createUser} />
-                                </Menu.Item>
+                            }
 
                             </Container>
                         </Menu>

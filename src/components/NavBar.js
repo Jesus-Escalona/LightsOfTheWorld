@@ -5,28 +5,43 @@ import MobileContainer from "../containers/MobileContainer";
 class NavBar extends React.Component {
 
     state ={
-        user: {}
+        user: {},
+        countryCode: {},
+        message: ''
+    };
+
+
+    componentDidMount() {
+        fetch('https://geoip-db.com/json/')
+            .then(res => res.json())
+            .then(data => this.setState({countryCode: data.country_code}))
     }
 
     createUser = (e, userObj) => {
-        let username = userObj.username;
-        let password = userObj.password;
+        const { name, email, password } = userObj
         fetch("http://localhost:3000/api/v1/users", {
             method: "POST",
             headers: {
                 "content-type": "application/json",
                 Accepts: "application/json"
             },
-            body: JSON.stringify({ user: { username: username, password: password } })
+            body: JSON.stringify({ name, email, password, country_code: this.state.countryCode })
         })
             .then(resp => resp.json())
-            .then(data => console.log("create user", data))
+            .then(this.setUserData)
     };
 
+    setUserData = (data) => {
+        if(data.message) {
+            this.setState({message: data.message})
+        } else {
+            this.setState({user: data.user, message: ''});
+            localStorage.setItem('jwt', data.jwt);
+        }
+    }
 
     loginUser = userObj => {
         const { email, password } = userObj
-        console.log(userObj)
         fetch("http://localhost:3000/api/v1/login", {
             method: "POST",
             headers: {
@@ -36,17 +51,19 @@ class NavBar extends React.Component {
             body: JSON.stringify({ user: { email, password } })
         })
             .then(resp => resp.json())
-            .then(data => {
-                this.setState({user: data.user});
-                localStorage.setItem('jwt', data.jwt);
-            })
+            .then(this.setUserData)
     };
+
+    logout = () => {
+        localStorage.removeItem('jwt')
+        this.setState({user: {}})
+    }
 
     render() {
         return (
             <div>
-                <DesktopContainer createUser={this.createUser} loginUser={this.loginUser}>{this.props.children}</DesktopContainer>
-                <MobileContainer createUser={this.createUser} loginUser={this.loginUser}>{this.props.children}</MobileContainer>
+                <DesktopContainer message={this.state.message} user={this.state.user} createUser={this.createUser} loginUser={this.loginUser} logoutUser={this.logout}>{this.props.children}</DesktopContainer>
+                <MobileContainer message={this.state.message} user={this.state.user} createUser={this.createUser} loginUser={this.loginUser} logoutUser={this.logout}>{this.props.children}</MobileContainer>
             </div>
         )
     }
