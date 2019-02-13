@@ -36,7 +36,7 @@ class Signup extends Component {
               <Message.Header>{this.props.message}</Message.Header>
             </Message>}
             <Form onSubmit={this.submitHandler}>
-              <Label pointing="below">Username:</Label>
+              <Label pointing="below">Name:</Label>
             <Form.Input
               type="text"
               name="name"

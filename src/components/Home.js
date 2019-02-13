@@ -1,5 +1,5 @@
-import React, { Component } from 'react'
-import {Button, Container, Dropdown, Form, Input, Rating} from "semantic-ui-react";
+import React, {Component, Fragment} from 'react'
+import {Button, Container, Dropdown, Form, Header, Input, Rating} from "semantic-ui-react";
 import Plot from 'react-plotly.js';
 import EmoForm from "./EmoForm";
 
@@ -7,7 +7,8 @@ class Home extends Component {
 
     state = {
         intensity: '',
-        emotion: ''
+        emotion: '',
+        message: ''
     }
 
     handleChange = (e, d) => {
@@ -16,39 +17,55 @@ class Home extends Component {
         })
     }
 
+    showMessage = (data) => {
+        if (data.message) {
+            this.setState({message: data.message})
+        }
+    }
+
+    removeMessage = () => {
+        this.setState({message: ''})
+    }
+
     handleSubmit =  (e) => {
         e.preventDefault()
         const {intensity, emotion} = this.state
-        fetch('http://localhost:3000/api/v1/user_emotions', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accepts': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('jwt')}`
-            },
-            body: JSON.stringify({intensity, emotion})
-        })
-            .then(res => res.json())
-            .then(data => console.log("success"))
+        if (intensity !=='' && emotion !=='') {
+            fetch('http://localhost:3000/api/v1/user_emotions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accepts': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('jwt')}`
+                },
+                body: JSON.stringify({intensity, emotion})
+            })
+                .then(res => res.json())
+                .then(this.showMessage)
+        }
     }
 
     render() {
         return (
             <Container fluid align="center">
-                {this.props.userExists && <EmoForm emotion={this.state.emotion} intensity={this.state.intensity} handleSubmit={this.handleSubmit} handleChange={this.handleChange}/>}
+                {this.props.userExists && <EmoForm removeMessage={this.removeMessage} message={this.state.message} emotion={this.state.emotion} intensity={this.state.intensity} handleSubmit={this.handleSubmit} handleChange={this.handleChange}/>}
                 {this.props.mapData.locations.length &&
-                <Plot
-                      data={[this.props.mapData]}
-                      layout={this.props.layout}
-                    //useResizeHandler
-                      style={{
-                          width: '1000px',
-                          height: '600px'
-                      }}
-                      config={{
-                          displaylogo: false
-                      }}
-                />}
+                <Fragment>
+                    <Header as='h1'>World Happiness Data</Header>
+                    <Plot
+                        data={[this.props.mapData]}
+                        layout={this.props.layout}
+                        //useResizeHandler
+                        style={{
+                            width: '1000px',
+                            height: '600px',
+                        }}
+                        config={{
+                            displaylogo: false
+                        }}
+                    />
+                </Fragment>
+                    }
             </Container>
         );
     }

@@ -20,13 +20,43 @@ const getNames = (array, key1, key2) => array.map(obj => obj[key1][key2])
 
 const layout = {
     //autosize: true,
-    title: "World Happiness Data",
+    margin: {
+        l: 20,
+        r: 20,
+        b: 80,
+        t: 2
+    },
     geo: {
         showlakes: true,
         subunitcolor: '#ffffff'
     }
 };
 class App extends Component {
+
+    state = {
+        user: {},
+        countryCode: {},
+        message: '',
+        mapData: {
+
+          type: 'choropleth',
+          locationmode: 'country names',
+          locations: [],
+          text: [],
+          z: [],
+          colorscale: [
+             [0, 'rgb(242,240,247)'], [0.2, 'rgb(218,218,235)'],
+             [0.4, 'rgb(188,189,220)'], [0.6, 'rgb(158,154,200)'],
+             [0.8, 'rgb(117,107,177)'], [1, 'rgb(84,39,143)']
+         ],
+         colorbar: {
+           title: 'Happiness Level',
+           thickness: '30'
+         }
+       },
+        intensity: 0,
+        emotion: ''
+    }
 
     createUser = (e, userObj) => {
         const { name, email, password } = userObj
@@ -70,30 +100,6 @@ class App extends Component {
         this.setState({user: {}})
     }
 
-    state = {
-        user: {},
-        countryCode: {},
-        message: '',
-        mapData: {
-
-          type: 'choropleth',
-          locationmode: 'country names',
-          locations: [],
-          text: [],
-          z: [],
-          colorscale: [
-             [0, 'rgb(242,240,247)'], [0.2, 'rgb(218,218,235)'],
-             [0.4, 'rgb(188,189,220)'], [0.6, 'rgb(158,154,200)'],
-             [0.8, 'rgb(117,107,177)'], [1, 'rgb(84,39,143)']
-         ],
-         colorbar: {
-           title: 'Happiness Level',
-           thickness: '30'
-         }
-       },
-        intensity: 0,
-        emotion: ''
-    }
 
 
     componentDidMount() {
@@ -154,7 +160,9 @@ class App extends Component {
                 loginUser={this.loginUser}
                 logout={this.logout}
                 createUser={this.createUser}
-                setUserData={this.setUserData}/>
+                setUserData={this.setUserData}
+            />
+            <br/>
             <Switch>
                 <Route exact path='/' render={() => {
                     return <Home userExists={userExists} mapData={mapData} layout={layout}/>
