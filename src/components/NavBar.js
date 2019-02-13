@@ -1,85 +1,69 @@
-import React from 'react'
-import DesktopContainer from '../containers/DesktopContainer'
-import MobileContainer from "../containers/MobileContainer";
+import React, { Fragment } from 'react'
+import {Button, Container, Image, Label, Segment, Menu} from "semantic-ui-react";
+import Login from '../components/Login'
+import Signup from '../components/Signup'
+import {NavLink} from "react-router-dom";
 
 class NavBar extends React.Component {
 
-    state ={
-        user: {},
-        countryCode: {},
-        message: ''
-    };
+    state = {
 
-
-    componentDidMount() {
-      let token = localStorage.getItem("jwt");
-      if (token) {
-        fetch("http://localhost:3000/api/v1/profile", {
-          headers: {
-            "content-type": "application/json",
-            'Accepts': "application/json",
-            'Authorization': `Bearer ${token}`
-     }
-   })
-        .then(resp => resp.json())
-        .then(data =>
-          data.message ? alert(`Must Log In`) : this.setState({ user: data.user })
-        );
-      }
-
-        fetch('https://geoip-db.com/json/')
-            .then(res => res.json())
-            .then(data => this.setState({countryCode: data.country_code}))
     }
 
-    createUser = (e, userObj) => {
-        const { name, email, password } = userObj
-        fetch("http://localhost:3000/api/v1/users", {
-            method: "POST",
-            headers: {
-                "content-type": "application/json",
-                Accepts: "application/json"
-            },
-            body: JSON.stringify({ name, email, password, country_code: this.state.countryCode })
-        })
-            .then(resp => resp.json())
-            .then(this.setUserData)
-    };
-
-    setUserData = (data) => {
-        if(data.message) {
-            this.setState({message: data.message})
-        } else {
-            this.setState({user: data.user, message: ''});
-            localStorage.setItem('jwt', data.jwt);
-        }
-    }
-
-    loginUser = userObj => {
-        const { email, password } = userObj
-        fetch("http://localhost:3000/api/v1/login", {
-            method: "POST",
-            headers: {
-                "content-type": "application/json",
-                Accepts: "application/json"
-            },
-            body: JSON.stringify({ user: { email, password } })
-        })
-            .then(resp => resp.json())
-            .then(this.setUserData)
-    };
-
-    logout = () => {
-        localStorage.removeItem('jwt')
-        this.setState({user: {}})
-    }
+    hideFixedMenu = () => this.setState({ fixed: false })
+    showFixedMenu = () => this.setState({ fixed: true })
 
     render() {
+        const { fixed } = this.state
+        const userExists = Object.keys(this.props.user).length > 0
+
         return (
-            <div>
-                <DesktopContainer message={this.state.message} user={this.state.user} createUser={this.createUser} loginUser={this.loginUser} logoutUser={this.logout}>{this.props.children}</DesktopContainer>
-                <MobileContainer message={this.state.message} user={this.state.user} createUser={this.createUser} loginUser={this.loginUser} logoutUser={this.logout}>{this.props.children}</MobileContainer>
-            </div>
+            <Segment
+                inverted
+                textAlign='center'
+                style={{ minHeight: 100, padding: '1em 0em' }}
+                vertical
+            >
+                <Menu
+                    fixed={fixed ? 'top' : null}
+                    inverted={!fixed}
+                    pointing={!fixed}
+                    secondary={!fixed}
+                    size='large'
+                >
+                    <Container>
+                        <Menu.Item as='a'>
+                            <Image src={require('../assets/images/logo.png')} size='mini'/>
+                        </Menu.Item>
+                        <Menu.Item as='h2' active>
+                            Emotional State
+                        </Menu.Item>
+                        {/*----------------------------LOGIN and SIGNUP HERE----------------------------------- */}
+                        {
+                            userExists ?
+                                <Menu.Item position='right'>
+                                    <Label
+                                        color='black'
+                                        size='big'
+                                        content={<NavLink to="/profile">{`Welcome back, ${this.props.user.data.attributes.name}`}</NavLink>}
+                                        image={{avatar: true, spaced: 'right', src: require('../assets/images/avatar.png')}}
+                                    />
+                                    <Button icon='sign-out' floated='right' label='Logout' labelPosition='left' onClick={this.props.logout} />
+                                </Menu.Item>
+                                :
+                                <Fragment>
+                                    <Menu.Item position='right'>
+                                        <Login message={this.props.message} submitHandler={this.props.loginUser}/>
+                                    </Menu.Item>
+                                    <Menu.Item>
+                                        <Signup message={this.props.message} submitHandler={this.props.createUser} />
+                                    </Menu.Item>
+                                </Fragment>
+                        }
+
+                    </Container>
+                </Menu>
+            </Segment>
         )
     }
 }

@@ -1,4 +1,4 @@
-import {Message, Menu, Button, Container, Responsive, Segment, Visibility, Image, Form, Header, Modal, Icon, Label, Divider} from "semantic-ui-react";
+import {Message, Button, Form, Modal, Icon, Label} from "semantic-ui-react";
 import React, {Component} from "react";
 
 class Signup extends Component {

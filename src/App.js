@@ -1,9 +1,10 @@
-import React, { Fragment, Component} from 'react';
-import {Container, Rating, Form, Button, Dropdown, Input } from "semantic-ui-react";
+import React, { Fragment, Component } from 'react';
+import { Route, Switch, Redirect } from 'react-router-dom'
 import './App.css';
-import Plot from 'react-plotly.js';
 import NavBar from "./components/NavBar";
 import Footer from "./components/Footer";
+import Home from "./components/Home";
+import Profile from "./components/Profile";
 
 const getNames = (array, key1, key2) => array.map(obj => obj[key1][key2])
 
@@ -19,15 +20,60 @@ const getNames = (array, key1, key2) => array.map(obj => obj[key1][key2])
 
 const layout = {
     //autosize: true,
-    title: "Jesus will choose this map's title",
+    title: "World Happiness Data",
     geo: {
         showlakes: true,
         subunitcolor: '#ffffff'
     }
 };
 class App extends Component {
+
+    createUser = (e, userObj) => {
+        const { name, email, password } = userObj
+        fetch("http://localhost:3000/api/v1/users", {
+            method: "POST",
+            headers: {
+                "content-type": "application/json",
+                Accepts: "application/json"
+            },
+            body: JSON.stringify({ name, email, password, country_code: this.state.countryCode })
+        })
+            .then(resp => resp.json())
+            .then(this.setUserData)
+    };
+
+    setUserData = (data) => {
+        if(data.message) {
+            this.setState({message: data.message})
+        } else {
+            this.setState({user: data.user, message: ''});
+            localStorage.setItem('jwt', data.jwt);
+        }
+    }
+
+    loginUser = userObj => {
+        const { email, password } = userObj
+        fetch("http://localhost:3000/api/v1/login", {
+            method: "POST",
+            headers: {
+                "content-type": "application/json",
+                Accepts: "application/json"
+            },
+            body: JSON.stringify({ user: { email, password } })
+        })
+            .then(resp => resp.json())
+            .then(this.setUserData)
+    };
+
+    logout = () => {
+        localStorage.removeItem('jwt')
+        this.setState({user: {}})
+    }
+
     state = {
-        width: '',
+        user: {},
+        countryCode: {},
+        message: '',
         mapData: {
 
           type: 'choropleth',
@@ -51,9 +97,25 @@ class App extends Component {
 
 
     componentDidMount() {
-        this.setState({width: window.innerWidth})
-        window.addEventListener('resize', this.updateDimensions)
-        this.getFeelings()
+        this.getFeelings();
+        let token = localStorage.getItem("jwt");
+        if (token) {
+            fetch("http://localhost:3000/api/v1/profile", {
+                headers: {
+                    "content-type": "application/json",
+                    'Accepts': "application/json",
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+                .then(resp => resp.json())
+                .then(data =>
+                    data.message ? alert(`Must Log In`) : this.setState({ user: data.user })
+                );
+        }
+
+        fetch('https://geoip-db.com/json/')
+            .then(res => res.json())
+            .then(data => this.setState({countryCode: data.country_code}))
 
     
   }
@@ -74,75 +136,34 @@ class App extends Component {
     )
     }
 
-    updateDimensions = () => {
-        this.setState({width: window.innerWidth})
-    }
-
 
     // plotClick = (e) => {
     //   console.log("click plot", e.points[0].pointIndex);
     // }
 
-    handleChange = (e, d) => {
-      console.log(d.name);
-      this.setState({
-        [d.name]: d.value
-       })
-    }
-
-    handleSubmit =  (e) => {
-      e.preventDefault()
-      const {intensity, emotion} = this.state
-      fetch('http://localhost:3000/api/v1/user_emotions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accepts': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('jwt')}`
-        },
-        body: JSON.stringify({intensity, emotion})
-      })
-        .then(res => res.json())
-        .then(data => console.log("success"))
-    }
 
     render() {
+        const { mapData, user, countryCode, message } = this.state;
+        const userExists = Object.keys(user).length > 0
     return (
         <Fragment>
-            <NavBar />
-            <Container fluid align="center">
-              <Form onSubmit={this.handleSubmit}>
-
-                <Dropdown onChange={this.handleChange}
-                  name="emotion"
-                  button
-                  className="icon"
-                  floating
-                  labeled
-                  icon='flask' text='Select Emotion' search selection options={[{value: 1, text: 'Happiness'}]}/>
-                <div>
-                  <div>Rating: {this.state.intensity}</div>
-                  <Input name="intensity" type='range' min={0} max={10} value={this.state.intensity} onChange={this.handleChange} />
-                  <br />
-                  <Rating rating={this.state.intensity} maxRating={10} />
-                  </div>
-                  <Button>Submit</Button>
-              </Form>
-
-              {this.state.mapData.locations.length &&
-                <Plot onClick={this.plotClick}
-                    data={[this.state.mapData]}
-                    layout={layout}
-                    //useResizeHandler
-                    style={{
-                        width: this.state.width > 1000 ? '1000px' : '100%',
-                        height: this.state.width > 1000 ? '600px' : '100%'
-                    }}
-                    config={{
-                        displaylogo: false
-                    }}
-                />}
-            </Container>
+            <NavBar
+                user={user}
+                countryCode={countryCode}
+                message={message}
+                loginUser={this.loginUser}
+                logout={this.logout}
+                createUser={this.createUser}
+                setUserData={this.setUserData}/>
+            <Switch>
+                <Route exact path='/' render={() => {
+                    return <Home userExists={userExists} mapData={mapData} layout={layout}/>
+                }}/>
+                <Route exact path='/profile' render={() => (
+                    userExists ? <Profile user={user}/> : <Redirect to="/"/>
+                )
+                }/>
+            </Switch>
             <Footer />
         </Fragment>
     );
